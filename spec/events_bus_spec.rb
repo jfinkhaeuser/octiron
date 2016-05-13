@@ -45,22 +45,22 @@ describe Octiron::Events::Bus do
 
     it "requires a handler" do
       expect do
-        @bus.register(TestEvent)
+        @bus.subscribe(TestEvent)
       end.to raise_error(ArgumentError)
     end
 
-    it "can register an object handler for an event" do
+    it "can subscribe an object handler for an event" do
       klass = nil
       expect do
-        klass = @bus.register(TestEvent, TestHandler.new)
+        klass = @bus.subscribe(TestEvent, TestHandler.new)
       end.not_to raise_error
       expect(klass).to eql TestEvent
     end
 
-    it "can register a handler proc for an event" do
+    it "can subscribe a handler proc for an event" do
       klass = nil
       expect do
-        klass = @bus.register(TestEvent) do |_|
+        klass = @bus.subscribe(TestEvent) do |_|
         end
       end.not_to raise_error
       expect(klass).to eql TestEvent
@@ -70,7 +70,7 @@ describe Octiron::Events::Bus do
       it "accepts string event IDs" do
         klass = nil
         expect do
-          klass = @bus.register('TestEvent', TestHandler.new)
+          klass = @bus.subscribe('TestEvent', TestHandler.new)
         end.not_to raise_error
         expect(klass).to eql TestEvent
       end
@@ -78,17 +78,17 @@ describe Octiron::Events::Bus do
       it "accepts symbolized/underscored event IDs" do
         klass = nil
         expect do
-          klass = @bus.register(:test_event, TestHandler.new)
+          klass = @bus.subscribe(:test_event, TestHandler.new)
         end.not_to raise_error
         expect(klass).to eql TestEvent
 
         expect do
-          @bus.register(:inner_test_event, TestHandler.new)
+          @bus.subscribe(:inner_test_event, TestHandler.new)
         end.to raise_error(NameError)
 
         bus = ::Octiron::Events::Bus.new(::TestModule)
         expect do
-          klass = bus.register(:inner_test_event, TestHandler.new)
+          klass = bus.subscribe(:inner_test_event, TestHandler.new)
         end.not_to raise_error
         expect(klass).to eql TestModule::InnerTestEvent
       end
@@ -104,8 +104,8 @@ describe Octiron::Events::Bus do
       event = TestEvent.new
       handler = TestHandler.new
 
-      @bus.register(TestEvent, handler)
-      @bus.notify(event)
+      @bus.subscribe(TestEvent, handler)
+      @bus.publish(event)
 
       expect(handler.invoked).to be_truthy
       expect(handler.event.object_id).to eql event.object_id
@@ -116,9 +116,9 @@ describe Octiron::Events::Bus do
       handler1 = TestHandler.new
       handler2 = TestHandler.new
 
-      @bus.register(TestEvent, handler1)
-      @bus.register(TestEvent, handler2)
-      @bus.notify(event)
+      @bus.subscribe(TestEvent, handler1)
+      @bus.subscribe(TestEvent, handler2)
+      @bus.publish(event)
 
       expect(handler1.invoked).to be_truthy
       expect(handler1.event.object_id).to eql event.object_id
@@ -130,10 +130,10 @@ describe Octiron::Events::Bus do
       event = TestEvent.new
       got_event = nil
 
-      @bus.register(TestEvent) do |fired|
+      @bus.subscribe(TestEvent) do |fired|
         got_event = fired
       end
-      @bus.notify(event)
+      @bus.publish(event)
 
       expect(got_event.object_id).to eql event.object_id
     end
@@ -143,13 +143,13 @@ describe Octiron::Events::Bus do
       got_event1 = nil
       got_event2 = nil
 
-      @bus.register(TestEvent) do |fired|
+      @bus.subscribe(TestEvent) do |fired|
         got_event1 = fired
       end
-      @bus.register(TestEvent) do |fired|
+      @bus.subscribe(TestEvent) do |fired|
         got_event2 = fired
       end
-      @bus.notify(event)
+      @bus.publish(event)
 
       expect(got_event1.object_id).to eql event.object_id
       expect(got_event2.object_id).to eql event.object_id

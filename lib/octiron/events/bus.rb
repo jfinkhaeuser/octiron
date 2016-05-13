@@ -25,7 +25,7 @@ module Octiron::Events
     end
 
     ##
-    # Register an event handler for an event.
+    # Subscribe an event handler to an event.
     # @param event_id (Class, String, other) A class or String naming an event
     #     class.
     # @param handler_object (Object) Handler object that must implement a
@@ -34,7 +34,7 @@ module Octiron::Events
     # @param handler_proc (Proc) Handler block that accepts an instance of the
     #     event class provided in the first parameter. If nil, a handler object
     #     must be provided.
-    def register(event_id, handler_object = nil, &handler_proc)
+    def subscribe(event_id, handler_object = nil, &handler_proc)
       handler = handler_proc || handler_object
       if not handler
         raise ArgumentError, "Please pass either an object or a handler block"
@@ -43,14 +43,19 @@ module Octiron::Events
       handlers_for(event_class) << handler
       return event_class
     end
+    alias register subscribe
+
+    # TODO: unsubscribe/deregister functionality (hard for procs)
 
     # Broadcast an event
-    def notify(event)
+    def publish(event)
       # TODO: add Hash prototype support
       handlers_for(event.class).each do |handler|
         handler.call(event)
       end
     end
+    alias broadcast publish
+    alias notify publish
 
     private
 
