@@ -9,7 +9,6 @@ module TestModule
   end
 end
 
-
 class TestHandler
   attr_reader :invoked, :event
 
@@ -46,7 +45,7 @@ describe Octiron::Events::Bus do
 
     it "requires a handler" do
       expect do
-        klass = @bus.register(TestEvent)
+        @bus.register(TestEvent)
       end.to raise_error(ArgumentError)
     end
 
@@ -93,7 +92,6 @@ describe Octiron::Events::Bus do
         end.not_to raise_error
         expect(klass).to eql TestModule::InnerTestEvent
       end
-
     end
   end
 
@@ -132,8 +130,8 @@ describe Octiron::Events::Bus do
       event = TestEvent.new
       got_event = nil
 
-      @bus.register(TestEvent) do |event|
-        got_event = event
+      @bus.register(TestEvent) do |fired|
+        got_event = fired
       end
       @bus.notify(event)
 
@@ -145,11 +143,11 @@ describe Octiron::Events::Bus do
       got_event1 = nil
       got_event2 = nil
 
-      @bus.register(TestEvent) do |event|
-        got_event1 = event
+      @bus.register(TestEvent) do |fired|
+        got_event1 = fired
       end
-      @bus.register(TestEvent) do |event|
-        got_event2 = event
+      @bus.register(TestEvent) do |fired|
+        got_event2 = fired
       end
       @bus.notify(event)
 

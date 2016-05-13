@@ -72,6 +72,5 @@ module Octiron::Events
         return constantize("#{@default_namespace}::#{camel_case(event_id)}")
       end
     end
-
   end # class Bus
 end # module Octiron::Events

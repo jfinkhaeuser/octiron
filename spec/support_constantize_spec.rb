@@ -43,7 +43,8 @@ describe ::Octiron::Support::Constantize do
   end
 
   it "accepts nested names" do
-    expect(@tester.constantize('TestModule::InnerTest')).to eql TestModule::InnerTest
+    expect(@tester.constantize('TestModule::InnerTest')).to \
+      eql TestModule::InnerTest
   end
 
   it "performs lookup in ancestors" do
