@@ -9,15 +9,6 @@ module TestModule
   end
 end
 
-class A
-  class AEvent
-  end
-end
-
-class B < A
-  class BEvent
-  end
-end
 
 class TestHandler
   attr_reader :invoked, :event
@@ -85,36 +76,6 @@ describe Octiron::Events::Bus do
         expect(klass).to eql TestEvent
       end
 
-      it "accepts namespaced event IDs" do
-        klass = nil
-        expect do
-          klass = @bus.register(TestModule::InnerTestEvent, TestHandler.new)
-        end.not_to raise_error
-        expect(klass).to eql TestModule::InnerTestEvent
-      end
-
-      it "accepts namespaced string event IDs" do
-        klass = nil
-        expect do
-          klass = @bus.register('TestModule::InnerTestEvent', TestHandler.new)
-        end.not_to raise_error
-        expect(klass).to eql TestModule::InnerTestEvent
-      end
-
-      it "rejects the '::' (empty namespaced) string event ID" do
-        expect do
-          @bus.register('::', TestHandler.new)
-        end.to raise_error(NameError)
-      end
-
-      it "accepts absolute string event IDs" do
-        klass = nil
-        expect do
-          klass = @bus.register('::TestEvent', TestHandler.new)
-        end.not_to raise_error
-        expect(klass).to eql TestEvent
-      end
-
       it "accepts symbolized/underscored event IDs" do
         klass = nil
         expect do
@@ -133,31 +94,6 @@ describe Octiron::Events::Bus do
         expect(klass).to eql TestModule::InnerTestEvent
       end
 
-      it "performs lookup in ancestors" do
-        klass = nil
-        expect do
-          klass = @bus.register('A::AEvent', TestHandler.new)
-        end.not_to raise_error
-        expect(klass).to eql A::AEvent
-
-        expect do
-          @bus.register('A::does_not_exist', TestHandler.new)
-        end.to raise_error(NameError)
-
-        expect do
-          klass = @bus.register('B::BEvent', TestHandler.new)
-        end.not_to raise_error
-        expect(klass).to eql B::BEvent
-
-        expect do
-          klass = @bus.register('B::AEvent', TestHandler.new)
-        end.not_to raise_error
-        expect(klass).to eql A::AEvent # not B::AEvent !!
-
-        expect do
-          @bus.register('B::does_not_exist', TestHandler.new)
-        end.to raise_error(NameError)
-      end
     end
   end
 
