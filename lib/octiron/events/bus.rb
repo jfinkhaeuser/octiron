@@ -34,23 +34,45 @@ module Octiron::Events
     # @param handler_proc (Proc) Handler block that accepts an instance of the
     #     event class provided in the first parameter. If nil, a handler object
     #     must be provided.
+    # @return  FIXME
     def subscribe(event_id, handler_object = nil, &handler_proc)
       handler = handler_proc || handler_object
       if not handler
         raise ArgumentError, "Please pass either an object or a handler block"
       end
       event_class = parse_event_id(event_id)
-      handlers_for(event_class) << handler
+
+      handlers = @handlers.fetch(event_class.to_s, [])
+      handlers << handler
+      @handlers[event_class.to_s] = handlers
+
       return event_class
     end
     alias register subscribe
 
-    # TODO: unsubscribe/deregister functionality (hard for procs)
+    ##
+    #
+    def unsubscribe(event_id, handler_object = nil, &handler_proc)
+      handler = handler_proc || handler_object
+      if not handler
+        raise ArgumentError, "Please pass either an object or a handler block"
+      end
+      event_class = parse_event_id(event_id)
 
+      handlers = @handlers.fetch(event_class.to_s, [])
+      handlers -= [handler]
+      @handlers[event_class.to_s] = handlers
+
+      return event_class
+    end
+
+    ##
+    # TODO document
     # Broadcast an event
     def publish(event)
       # TODO: add Hash prototype support
-      handlers_for(event.class).each do |handler|
+      handlers = @handlers.fetch(event.class.to_s, [])
+      handlers.each do |handler|
         handler.call(event)
       end
     end
@@ -61,10 +83,6 @@ module Octiron::Events
 
     include ::Octiron::Support::CamelCase
     include ::Octiron::Support::Constantize
-
-    def handlers_for(event_class)
-      @handlers[event_class.to_s] ||= []
-    end
 
     def parse_event_id(event_id)
       # TODO: add Hash prototype support

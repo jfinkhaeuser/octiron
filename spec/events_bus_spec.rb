@@ -13,13 +13,13 @@ class TestHandler
   attr_reader :invoked, :event
 
   def initialize
-    @invoked = false
+    @invoked = 0
     @event = nil
   end
 
   def call(event)
     @event = event
-    @invoked = true
+    @invoked += 1
   end
 end
 
@@ -38,7 +38,7 @@ describe Octiron::Events::Bus do
     end
   end
 
-  describe "registration" do
+  describe "subscription" do
     before :each do
       @bus = ::Octiron::Events::Bus.new(::Octiron::Events)
     end
@@ -107,7 +107,7 @@ describe Octiron::Events::Bus do
       @bus.subscribe(TestEvent, handler)
       @bus.publish(event)
 
-      expect(handler.invoked).to be_truthy
+      expect(handler.invoked).to eql 1
       expect(handler.event.object_id).to eql event.object_id
     end
 
@@ -120,9 +120,9 @@ describe Octiron::Events::Bus do
       @bus.subscribe(TestEvent, handler2)
       @bus.publish(event)
 
-      expect(handler1.invoked).to be_truthy
+      expect(handler1.invoked).to eql 1
       expect(handler1.event.object_id).to eql event.object_id
-      expect(handler2.invoked).to be_truthy
+      expect(handler2.invoked).to eql 1
       expect(handler2.event.object_id).to eql event.object_id
     end
 
@@ -153,6 +153,63 @@ describe Octiron::Events::Bus do
 
       expect(got_event1.object_id).to eql event.object_id
       expect(got_event2.object_id).to eql event.object_id
+    end
+  end
+
+  describe "unsubscription" do
+    before :each do
+      @bus = ::Octiron::Events::Bus.new(::Octiron::Events)
+    end
+
+    it "requires a handler" do
+      expect do
+        @bus.unsubscribe(TestEvent)
+      end.to raise_error(ArgumentError)
+    end
+
+    it "unsubscripes object handlers properly" do
+      event = TestEvent.new
+      handler1 = TestHandler.new
+      handler2 = TestHandler.new
+
+      @bus.subscribe(TestEvent, handler1)
+      @bus.subscribe(TestEvent, handler2)
+      @bus.publish(event)
+
+      expect(handler1.invoked).to eql 1
+      expect(handler1.event.object_id).to eql event.object_id
+      expect(handler2.invoked).to eql 1
+      expect(handler2.event.object_id).to eql event.object_id
+
+      @bus.unsubscribe(TestEvent, handler2)
+      @bus.publish(event)
+
+      expect(handler1.invoked).to eql 2
+      expect(handler2.invoked).to eql 1
+    end
+
+    it "unsubscripes proc handlers  properly" do
+      event = TestEvent.new
+      invoked1 = 0
+      invoked2 = 0
+
+      @bus.subscribe(TestEvent) do |_|
+        invoked1 += 1
+      end
+      second = proc do |_|
+        invoked2 += 1
+      end
+      @bus.subscribe(TestEvent, &second)
+      @bus.publish(event)
+
+      expect(invoked1).to eql 1
+      expect(invoked2).to eql 1
+
+      @bus.unsubscribe(TestEvent, &second)
+      @bus.publish(event)
+
+      expect(invoked1).to eql 2
+      expect(invoked2).to eql 1
     end
   end
 end
