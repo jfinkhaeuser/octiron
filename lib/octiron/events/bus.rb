@@ -34,7 +34,7 @@ module Octiron::Events
     # @param handler_proc (Proc) Handler block that accepts an instance of the
     #     event class provided in the first parameter. If nil, a handler object
     #     must be provided.
-    # @return  FIXME
+    # @return The class represented by the event_id.
     def subscribe(event_id, handler_object = nil, &handler_proc)
       handler = handler_proc || handler_object
       if not handler
@@ -51,7 +51,16 @@ module Octiron::Events
     alias register subscribe
 
     ##
-    #
+    # Unsubscribe an event handler from an event.
+    # @param event_id (Class, String, other) A class or String naming an event
+    #     class.
+    # @param handler_object (Object) Handler object that must implement a
+    #     `#call` method accepting an instance of the event class provided in
+    #     the first parameter. If nil, a block needs to be provided.
+    # @param handler_proc (Proc) Handler block that accepts an instance of the
+    #     event class provided in the first parameter. If nil, a handler object
+    #     must be provided.
+    # @return The class represented by the event_id.
     def unsubscribe(event_id, handler_object = nil, &handler_proc)
       handler = handler_proc || handler_object
       if not handler
@@ -67,8 +76,9 @@ module Octiron::Events
     end
 
     ##
-    # TODO document
-    # Broadcast an event
+    # Broadcast an event. This is an instance of a class provided to #subscribe
+    # previously.
+    # @param event (Object) the event to publish
     def publish(event)
       # TODO: add Hash prototype support
       handlers = @handlers.fetch(event.class.to_s, [])
