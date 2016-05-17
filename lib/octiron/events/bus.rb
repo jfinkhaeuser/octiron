@@ -132,7 +132,6 @@ module Octiron::Events
       when Class
         return event_id.to_s
       when Hash
-        event_id.extend(::Collapsium::RecursiveSort)
         return event_id
       when String
         return constantize(event_id).to_s
