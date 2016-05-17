@@ -54,7 +54,7 @@ describe Octiron::Events::Bus do
       expect do
         klass = @bus.subscribe(TestEvent, TestHandler.new)
       end.not_to raise_error
-      expect(klass).to eql TestEvent
+      expect(klass).to eql 'TestEvent'
     end
 
     it "can subscribe a handler proc for an event" do
@@ -63,7 +63,7 @@ describe Octiron::Events::Bus do
         klass = @bus.subscribe(TestEvent) do |_|
         end
       end.not_to raise_error
-      expect(klass).to eql TestEvent
+      expect(klass).to eql 'TestEvent'
     end
 
     describe "event name validation" do
@@ -72,7 +72,7 @@ describe Octiron::Events::Bus do
         expect do
           klass = @bus.subscribe('TestEvent', TestHandler.new)
         end.not_to raise_error
-        expect(klass).to eql TestEvent
+        expect(klass).to eql 'TestEvent'
       end
 
       it "accepts symbolized/underscored event IDs" do
@@ -80,7 +80,7 @@ describe Octiron::Events::Bus do
         expect do
           klass = @bus.subscribe(:test_event, TestHandler.new)
         end.not_to raise_error
-        expect(klass).to eql TestEvent
+        expect(klass).to eql 'TestEvent'
 
         expect do
           @bus.subscribe(:inner_test_event, TestHandler.new)
@@ -90,7 +90,22 @@ describe Octiron::Events::Bus do
         expect do
           klass = bus.subscribe(:inner_test_event, TestHandler.new)
         end.not_to raise_error
-        expect(klass).to eql TestModule::InnerTestEvent
+        expect(klass).to eql 'TestModule::InnerTestEvent'
+      end
+
+      it "accepts Hash event IDs" do
+        proto = {
+          a: nil,
+          b: {
+            c: 42,
+          },
+        }
+
+        klass = nil
+        expect do
+          klass = @bus.subscribe(proto, TestHandler.new)
+        end.not_to raise_error
+        expect(klass).to eql proto
       end
     end
   end
@@ -153,6 +168,46 @@ describe Octiron::Events::Bus do
 
       expect(got_event1.object_id).to eql event.object_id
       expect(got_event2.object_id).to eql event.object_id
+    end
+
+    it "notifies from a Hash event" do
+      proto = {
+        a: nil,
+        b: {
+          c: 42,
+        },
+      }
+      handler = TestHandler.new
+
+      @bus.subscribe(proto, handler)
+
+      # Bad event #1
+      bad_event1 = {
+        a: 'foo',
+        # :b is missing
+      }
+      @bus.publish(bad_event1)
+      expect(handler.invoked).to eql 0
+
+      # Bad event #2
+      bad_event2 = {
+        a: 'foo',
+        b: {
+          c: 123, # value mismatch
+        }
+      }
+      @bus.publish(bad_event2)
+      expect(handler.invoked).to eql 0
+
+      # Good event
+      good_event = {
+        a: 'foo',
+        b: {
+          c: 42,
+        }
+      }
+      @bus.publish(good_event)
+      expect(handler.invoked).to eql 1
     end
   end
 
