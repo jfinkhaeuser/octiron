@@ -53,6 +53,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "yard", "~> 0.8"
 
   spec.add_dependency "collapsium", "~> 0.2"
+  spec.add_dependency "rgl", "~> 0.5"
   spec.add_dependency "octokit", "~> 4.3"
 end
 # rubocop:enable Style/SpaceAroundOperators
