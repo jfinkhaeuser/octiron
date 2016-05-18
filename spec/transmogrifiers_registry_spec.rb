@@ -21,6 +21,26 @@ class Transmogrifier
   end
 end
 
+class HashTransmogrifier < Transmogrifier
+  def initialize(bad = false)
+    super()
+    @bad = bad
+  end
+
+  def call(from)
+    super
+
+    if @bad
+      return {}
+    end
+
+    return {
+      a: from[:a],
+      b_c: from[:b][:c],
+    }
+  end
+end
+
 class Test1To2Transmogrifier < Transmogrifier
   def call(from)
     super
@@ -145,6 +165,23 @@ describe Octiron::Transmogrifiers::Registry do
         @reg.register(:test1, :test2, false, Transmogrifier.new)
       end.not_to raise_error
     end
+
+    it "accepts hash prototypes" do
+      proto1 = {
+        a: nil,
+        b: {
+          c: 42,
+        },
+      }
+      proto2 = {
+        a: nil,
+        b_c: nil,
+      }
+
+      expect do
+        @reg.register(proto1, proto2, false, Transmogrifier.new)
+      end.not_to raise_error
+    end
   end
 
   describe "transmogrification" do
@@ -212,6 +249,62 @@ describe Octiron::Transmogrifiers::Registry do
 
       expect do
         @reg.transmogrify(Test1.new, Test3)
+      end.to raise_error(RuntimeError)
+    end
+
+    it "transmogrifies hashes" do
+      proto1 = {
+        a: nil,
+        b: {
+          c: 42,
+        },
+      }
+      proto2 = {
+        a: nil,
+        b_c: nil,
+      }
+
+      @reg.register(proto1, proto2, false, HashTransmogrifier.new)
+
+      from = {
+        a: 'foo',
+        b: {
+          c: 42,
+        },
+      }
+
+      result = nil
+      expect do
+        result = @reg.transmogrify(from, proto2)
+      end.not_to raise_error
+
+      expect(result[:a]).to eql 'foo'
+      expect(result[:b_c]).to eql 42
+    end
+
+    it "throws if a hash transmogrifier produces bad results" do
+      proto1 = {
+        a: nil,
+        b: {
+          c: 42,
+        },
+      }
+      proto2 = {
+        a: nil,
+        b_c: nil,
+      }
+
+      @reg.register(proto1, proto2, false, HashTransmogrifier.new(true))
+
+      from = {
+        a: 'foo',
+        b: {
+          c: 42,
+        },
+      }
+
+      expect do
+        @reg.transmogrify(from, proto2)
       end.to raise_error(RuntimeError)
     end
   end

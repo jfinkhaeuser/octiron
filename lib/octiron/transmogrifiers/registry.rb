@@ -14,7 +14,7 @@ require 'octiron/support/camel_case'
 require 'octiron/support/constantize'
 
 # require 'collapsium/recursive_sort'
-# require 'collapsium/prototype_match'
+require 'collapsium/prototype_match'
 
 module Octiron::Transmogrifiers
 
@@ -126,6 +126,11 @@ module Octiron::Transmogrifiers
     def transmogrify(from, to)
       # Get lookup keys
       from_name = from.class.to_s
+      if from.is_a?(Hash)
+        # Finding the correct from_name is tricky, because from is not a
+        # prototype, but the graph and all intermediate
+        from_name = first_matching_hash_prototype(from)
+      end
       to_name = parse_name(to)
 
       # We'll ask the graph for the shortest path. If there is none, we can't
@@ -143,12 +148,23 @@ module Octiron::Transmogrifiers
       input = from
       result = nil
       path.inject do |step_from, step_to|
+        # Call transmogrifier
         key = [step_from, step_to]
         result = @transmogrifiers[key].call(input)
-        if result.class.to_s != step_to
+
+        # Verify result
+        if step_to.is_a?(Hash)
+          result.extend(::Collapsium::PrototypeMatch)
+          if not result.prototype_match(step_to)
+            raise "Transmogrifier returned Hash that did not match prototype "\
+                  "#{step_to}, aborting!"
+          end
+        elsif result.class.to_s != step_to
           raise "Transmogrifier returned result of invalid class "\
               "#{result.class}, aborting!"
         end
+
+        # Result is input for the next transmogrifier in the chain
         input = result
 
         # Make step_to the next step_from
@@ -173,6 +189,23 @@ module Octiron::Transmogrifiers
       else
         return constantize("#{@default_namespace}::#{camel_case(name)}").to_s
       end
+    end
+
+    def first_matching_hash_prototype(value)
+      value.extend(::Collapsium::PrototypeMatch)
+      @transmogrifiers.each do |key, _|
+        proto = key[0]
+
+        if not proto.is_a?(Hash)
+          next
+        end
+
+        if value.prototype_match(proto)
+          return proto
+        end
+      end
+
+      return nil
     end
   end # class Registry
 end # module Octiron::Transmogrifiers
