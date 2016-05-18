@@ -44,10 +44,22 @@ end
 
 describe Octiron::Transmogrifiers::Registry do
   describe "construction" do
-    it "can be constructed" do
+    it "can be constructed without a default namespace" do
+      reg = nil
       expect do
-        ::Octiron::Transmogrifiers::Registry.new
+        reg = ::Octiron::Transmogrifiers::Registry.new
       end.not_to raise_error
+
+      expect(reg.default_namespace).to eql 'Octiron::Transmogrifiers'
+    end
+
+    it "can be constructed with a namespace" do
+      reg = nil
+      expect do
+        reg = ::Octiron::Transmogrifiers::Registry.new(::Octiron::Transmogrifiers)
+      end.not_to raise_error
+
+      expect(reg.default_namespace).to eql 'Octiron::Transmogrifiers'
     end
   end
 
@@ -113,6 +125,24 @@ describe Octiron::Transmogrifiers::Registry do
       # Second time, there is none - it still shouldn't fail
       expect do
         @reg.deregister(Test1, Test2)
+      end.not_to raise_error
+    end
+  end
+
+  describe "register argument validation" do
+    before :each do
+      @reg = ::Octiron::Transmogrifiers::Registry.new
+    end
+
+    it "accepts string names" do
+      expect do
+        @reg.register('Test1', 'Test2', false, Transmogrifier.new)
+      end.not_to raise_error
+    end
+
+    it "accepts symbol names" do
+      expect do
+        @reg.register(:test1, :test2, false, Transmogrifier.new)
       end.not_to raise_error
     end
   end

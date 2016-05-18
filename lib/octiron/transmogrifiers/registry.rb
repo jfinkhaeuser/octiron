@@ -35,9 +35,14 @@ module Octiron::Transmogrifiers
   # and one that turns B into C, then by chaining both the registry can also
   # turn A into C directly. (This is done via the 'rgl' gem).
   class Registry
+    # @return (String) the default namespace to search for transmogrifiers
+    attr_reader :default_namespace
+
     ##
-    # Ctor
-    def initialize
+    # @param default_namespace (Symbol) The default namespace to look in for
+    #     Transmogrifier classes.
+    def initialize(default_namespace = ::Octiron::Transmogrifiers)
+      @default_namespace = default_namespace.to_s
       @graph = RGL::DirectedAdjacencyGraph.new
       @visitor = RGL::DijkstraVisitor.new(@graph)
       @map_data = {}
