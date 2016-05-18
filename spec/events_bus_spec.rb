@@ -25,16 +25,22 @@ end
 
 describe Octiron::Events::Bus do
   describe "construction" do
-    it "cannot be constructed without a default namespace" do
+    it "can be constructed without a default namespace" do
+      bus = nil
       expect do
-        ::Octiron::Events::Bus.new
-      end.to raise_error(ArgumentError)
+        bus = ::Octiron::Events::Bus.new
+      end.not_to raise_error
+
+      expect(bus.default_namespace).to eql 'Octiron::Events'
     end
 
     it "can be constructed with a namespace" do
+      bus = nil
       expect do
-        ::Octiron::Events::Bus.new(::Octiron::Events)
+        bus = ::Octiron::Events::Bus.new(::Octiron::Events)
       end.not_to raise_error
+
+      expect(bus.default_namespace).to eql 'Octiron::Events'
     end
   end
 

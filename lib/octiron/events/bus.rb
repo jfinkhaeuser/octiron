@@ -19,10 +19,13 @@ module Octiron::Events
   # Implements and in-process pub-sub events broadcaster allowing multiple
   # observers to subscribe to different events.
   class Bus
+    # @return (String) the default namespace
+    attr_reader :default_namespace
+
     ##
     # @param default_namespace (Symbol) The default namespace to look in for
     #     Event classes.
-    def initialize(default_namespace)
+    def initialize(default_namespace = ::Octiron::Events)
       @default_namespace = default_namespace.to_s
       @handlers = {}
     end
