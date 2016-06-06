@@ -103,10 +103,38 @@ module Octiron::Events
       if name.is_a?(Hash)
         name.extend(::Collapsium::PrototypeMatch)
 
-        # Check for prototype matches
-        @handlers.keys.each do |proto|
-          if name.prototype_match(proto)
-            return @handlers[proto]
+        # The prototype hash logic is a little complex. A hash event can match
+        # multiple prototypes, e.g. { a: 42 } should match { a: nil } as well as
+        # { a: 42 }.
+        # When writing, we want to be as precise as possible and find the best
+        # match. When reading, we want to merge all matches, ideally.
+        if write
+          best_score = -1
+          best_proto = nil
+
+          # Find the best matching prototype
+          @handlers.keys.each do |proto|
+            score = name.prototype_match_score(proto)
+            if score > best_score
+              best_score = score
+              best_proto = proto
+            end
+          end
+
+          if not best_proto.nil?
+            return @handlers[best_proto]
+          end
+        else
+          merged = []
+
+          @handlers.keys.each do |proto|
+            if name.prototype_match(proto)
+              merged += @handlers[proto]
+            end
+          end
+
+          if not merged.empty?
+            return merged
           end
         end
 
