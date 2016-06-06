@@ -215,6 +215,52 @@ describe Octiron::Events::Bus do
       @bus.publish(good_event)
       expect(handler.invoked).to eql 1
     end
+
+    it "matches multiple Hash prototypes" do
+      # Two similar prototypes
+      proto1 = {
+        a: 42,
+      }
+      handler1 = TestHandler.new
+      @bus.subscribe(proto1, handler1)
+
+      proto2 = {
+        a: nil,
+      }
+      handler2 = TestHandler.new
+      @bus.subscribe(proto2, handler2)
+
+      # Fire one event that matches both
+      @bus.publish(a: 42)
+
+      expect(handler1.invoked).to eql 1
+      expect(handler2.invoked).to eql 1
+    end
+
+    it "stores handlers for the best matching prototype" do
+      # Two different prototypes
+      proto1 = {
+        b: 42,
+      }
+      handler1 = TestHandler.new
+      @bus.subscribe(proto1, handler1)
+
+      proto2 = {
+        a: nil,
+      }
+      handler2 = TestHandler.new
+      @bus.subscribe(proto2, handler2)
+
+      handler3 = TestHandler.new
+      @bus.subscribe(proto2, handler3)
+
+      # Fire one event that matches one prototype
+      @bus.publish(a: 42)
+
+      expect(handler1.invoked).to eql 0
+      expect(handler2.invoked).to eql 1
+      expect(handler3.invoked).to eql 1
+    end
   end
 
   describe "unsubscription" do
