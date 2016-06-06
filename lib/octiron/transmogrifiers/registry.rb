@@ -129,7 +129,7 @@ module Octiron::Transmogrifiers
       if from.is_a?(Hash)
         # Finding the correct from_name is tricky, because from is not a
         # prototype, but the graph and all intermediate
-        from_name = first_matching_hash_prototype(from)
+        from_name = best_matching_hash_prototype(from)
       end
       to_name = parse_name(to)
 
@@ -191,8 +191,11 @@ module Octiron::Transmogrifiers
       end
     end
 
-    def first_matching_hash_prototype(value)
+    def best_matching_hash_prototype(value)
       value.extend(::Collapsium::PrototypeMatch)
+      best_score = -1
+      best_proto = nil
+
       @transmogrifiers.each do |key, _|
         proto = key[0]
 
@@ -200,12 +203,14 @@ module Octiron::Transmogrifiers
           next
         end
 
-        if value.prototype_match(proto)
-          return proto
+        score = value.prototype_match_score(proto)
+        if score > best_score
+          best_score = score
+          best_proto = proto
         end
       end
 
-      return nil
+      return best_proto
     end
   end # class Registry
 end # module Octiron::Transmogrifiers
