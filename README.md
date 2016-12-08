@@ -6,6 +6,11 @@ Events octiron responds to can be any classes or Hash prototypes. Using
 transmogrifiers, events can be turned into other kinds of events
 transparently.
 
+[![Gem Version](https://badge.fury.io/rb/octiron.svg)](https://badge.fury.io/rb/octiron)
+[![Build status](https://travis-ci.org/jfinkhaeuser/octiron.svg?branch=master)](https://travis-ci.org/jfinkhaeuser/octiron)
+[![Code Climate](https://codeclimate.com/github/jfinkhaeuser/octiron/badges/gpa.svg)](https://codeclimate.com/github/jfinkhaeuser/octiron)
+[![Test Coverage](https://codeclimate.com/github/jfinkhaeuser/octiron/badges/coverage.svg)](https://codeclimate.com/github/jfinkhaeuser/octiron/coverage)
+
 # Usage
 
 So what does this all mean?
