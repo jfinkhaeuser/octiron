@@ -12,7 +12,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'octiron/version'
 
 # rubocop:disable Style/UnneededPercentQ, Style/ExtraSpacing
-# rubocop:disable Style/SpaceAroundOperators
+# rubocop:disable Style/SpaceAroundOperators, Metrics/BlockLength
 Gem::Specification.new do |spec|
   spec.name          = "octiron"
   spec.version       = Octiron::VERSION
@@ -46,5 +46,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "collapsium", "~> 0.8"
   spec.add_dependency "rgl", "~> 0.5"
 end
-# rubocop:enable Style/SpaceAroundOperators
+# rubocop:enable Style/SpaceAroundOperators, Metrics/BlockLength
 # rubocop:enable Style/UnneededPercentQ, Style/ExtraSpacing
