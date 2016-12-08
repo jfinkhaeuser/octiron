@@ -7,8 +7,7 @@
 # All rights reserved.
 #
 
-require 'octiron/support/camel_case'
-require 'octiron/support/constantize'
+require 'octiron/support/identifiers'
 
 require 'collapsium/recursive_sort'
 require 'collapsium/prototype_match'
@@ -46,7 +45,7 @@ module Octiron::Events
       if not handler
         raise ArgumentError, "Please pass either an object or a handler block"
       end
-      event_name = parse_event_id(event_id)
+      event_name = identify(event_id)
 
       handlers_for(event_name, true) << handler
 
@@ -70,7 +69,7 @@ module Octiron::Events
       if not handler
         raise ArgumentError, "Please pass either an object or a handler block"
       end
-      event_name = parse_event_id(event_id)
+      event_name = identify(event_id)
 
       handlers_for(event_name, true).delete(handler)
 
@@ -155,20 +154,6 @@ module Octiron::Events
       return @handlers[name] || []
     end
 
-    include ::Octiron::Support::CamelCase
-    include ::Octiron::Support::Constantize
-
-    def parse_event_id(event_id)
-      case event_id
-      when Class
-        return event_id.to_s
-      when Hash
-        return event_id
-      when String
-        return constantize(event_id).to_s
-      else
-        return constantize("#{@default_namespace}::#{camel_case(event_id)}").to_s
-      end
-    end
+    include ::Octiron::Support::Identifiers
   end # class Bus
 end # module Octiron::Events

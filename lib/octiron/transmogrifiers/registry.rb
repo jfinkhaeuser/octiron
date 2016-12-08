@@ -10,8 +10,7 @@
 require 'rgl/adjacency'
 require 'rgl/dijkstra'
 
-require 'octiron/support/camel_case'
-require 'octiron/support/constantize'
+require 'octiron/support/identifiers'
 
 # require 'collapsium/recursive_sort'
 require 'collapsium/prototype_match'
@@ -76,8 +75,8 @@ module Octiron::Transmogrifiers
       end
 
       # Convert to canonical names
-      from_name = parse_name(from)
-      to_name = parse_name(to)
+      from_name = identify(from)
+      to_name = identify(to)
       key = [from_name, to_name]
 
       # We treat the graph as authoritative for what transmogrifiers exist.
@@ -107,8 +106,8 @@ module Octiron::Transmogrifiers
     # @param to (Class, String, other) Transmogrifier target.
     def deregister(from, to)
       # Convert to canonical names
-      from_name = parse_name(from)
-      to_name = parse_name(to)
+      from_name = identify(from)
+      to_name = identify(to)
       key = [from_name, to_name]
 
       # Graph, map data and transmogrifiers need to be modified
@@ -131,7 +130,7 @@ module Octiron::Transmogrifiers
         # prototype, but the graph and all intermediate
         from_name = best_matching_hash_prototype(from)
       end
-      to_name = parse_name(to)
+      to_name = identify(to)
 
       # We'll ask the graph for the shortest path. If there is none, we can't
       # transmogrify. (Note: the @map changes with each registration/
@@ -175,21 +174,7 @@ module Octiron::Transmogrifiers
 
     private
 
-    include ::Octiron::Support::CamelCase
-    include ::Octiron::Support::Constantize
-
-    def parse_name(name)
-      case name
-      when Class
-        return name.to_s
-      when Hash
-        return name
-      when String
-        return constantize(name).to_s
-      else
-        return constantize("#{@default_namespace}::#{camel_case(name)}").to_s
-      end
-    end
+    include ::Octiron::Support::Identifiers
 
     def best_matching_hash_prototype(value)
       value.extend(::Collapsium::PrototypeMatch)
