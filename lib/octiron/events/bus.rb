@@ -41,10 +41,7 @@ module Octiron::Events
     #     must be provided.
     # @return The class represented by the event_id, as a String name.
     def subscribe(event_id, handler_object = nil, &handler_proc)
-      handler = handler_proc || handler_object
-      if not handler
-        raise ArgumentError, "Please pass either an object or a handler block"
-      end
+      handler = resolve_handler(handler_object, &handler_proc)
       event_name = identify(event_id)
 
       handlers_for(event_name, true) << handler
@@ -65,10 +62,7 @@ module Octiron::Events
     #     must be provided.
     # @return The class represented by the event_id, as a String name.
     def unsubscribe(event_id, handler_object = nil, &handler_proc)
-      handler = handler_proc || handler_object
-      if not handler
-        raise ArgumentError, "Please pass either an object or a handler block"
-      end
+      handler = resolve_handler(handler_object, &handler_proc)
       event_name = identify(event_id)
 
       handlers_for(event_name, true).delete(handler)
@@ -152,6 +146,14 @@ module Octiron::Events
       # In read access, want to either return an empty list, or the registered
       # handlers, but not ovewrite the registered handlers.
       return @handlers[name] || []
+    end
+
+    def resolve_handler(handler_object = nil, &handler_proc)
+      handler = handler_proc || handler_object
+      if not handler
+        raise ArgumentError, "Please pass either an object or a handler block"
+      end
+      return handler
     end
 
     include ::Octiron::Support::Identifiers
