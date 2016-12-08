@@ -1,19 +1,10 @@
 # octiron
 
-*Octiron magically transforms events to GitHub "events".*
+*Octiron is an event bus with the ability to magically transform events.*
 
 Events octiron responds to can be any classes or Hash prototypes. Using
-transmogrifiers, events can be turned into other kinds of events.
-
-GitHub "events" are API calls to GitHub that modify something, e.g. create
-or delete issues, comments, etc.
-
-The gem includes some transmogrifiers that transmogrify Hash events to
-GitHub API calls via octokit.
-
-Users neet to provide some GitHub authentication information, and
-transmogrifiers from their own bespoke events to Hash events, and octiron
-takes care of turning this into GitHub API calls.
+transmogrifiers, events can be turned into other kinds of events
+transparently.
 
 # Usage
 
@@ -35,7 +26,6 @@ on_event(MyEvent) do |event|
   # event.is_a?(MyEvent) == true
   # do something with the event
 end
-
 ```
 
 You can subscribe as many handlers to an event class as you want.
@@ -49,7 +39,7 @@ class AnotherEvent
 end
 
 on_transmogrify(MyEvent).to AnotherEvent do |my_event|
-  # my_event.is_a?(MyEvent) == true
+  # guaranteed: my_event.is_a?(MyEvent) == true
   AnotherEvent.new
 end
 ```
@@ -76,10 +66,6 @@ end
 
 publish MyEvent.new
 ```
-
-## GitHub Usage
-
-TODO
 
 ## Advanced Usage
 
@@ -162,7 +148,7 @@ end
 publish published1
 ```
 
-Note that you can produce endless loops by publishing events from within event
+*Note* that you can produce closed loops by publishing events from within event
 handlers. In the above example, if the transmogrifier did not delete the `:a`
 key from the newly created event, it would still match the `proto1` prototype,
 which would trigger that handler and the transmogrifier again and again.

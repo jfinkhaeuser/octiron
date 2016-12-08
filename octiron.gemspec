@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
     transparently.
   )
   spec.summary       = %q(
-    Octiron is an event bus with the ability to transform events.
+    Octiron is an event bus with the ability to magically transform events.
   )
   spec.homepage      = "https://github.com/jfinkhaeuser/octiron"
   spec.license       = "MITNFA"
