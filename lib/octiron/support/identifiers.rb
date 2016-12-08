@@ -35,6 +35,8 @@ module Octiron::Support
         return name
       when String
         return constantize(name).to_s
+      when nil
+        raise NameError, "Can't identify 'nil'!"
       else
         return constantize("#{@default_namespace}::#{camel_case(name)}").to_s
       end
