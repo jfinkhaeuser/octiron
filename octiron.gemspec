@@ -20,20 +20,11 @@ Gem::Specification.new do |spec|
   spec.email         = ["jens@finkhaeuser.de"]
   spec.description   = %q(
     Events octiron responds to can be any classes or Hash prototypes. Using
-    transmogrifiers, events can be turned into other kinds of events.
-
-    GitHub "events" are API calls to GitHub that modify something, e.g. create
-    or delete issues, comments, etc.
-
-    The gem includes some transmogrifiers that transmogrify Hash events to
-    GitHub API calls via octokit.
-
-    Users neet to provide some GitHub authentication information, and
-    transmogrifiers from their own bespoke events to Hash events, and octiron
-    takes care of turning this into GitHub API calls.
+    transmogrifiers, events can be turned into other kinds of events
+    transparently.
   )
   spec.summary       = %q(
-    Octiron magically transforms events to GitHub "events".
+    Octiron is an event bus with the ability to transform events.
   )
   spec.homepage      = "https://github.com/jfinkhaeuser/octiron"
   spec.license       = "MITNFA"
@@ -45,16 +36,15 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.0'
 
-  spec.add_development_dependency "bundler", "~> 1.12"
-  spec.add_development_dependency "rubocop", "~> 0.40"
-  spec.add_development_dependency "rake", "~> 11.1"
-  spec.add_development_dependency "rspec", "~> 3.4"
-  spec.add_development_dependency "simplecov", "~> 0.11"
-  spec.add_development_dependency "yard", "~> 0.8"
+  spec.add_development_dependency "bundler", "~> 1.13"
+  spec.add_development_dependency "rubocop", "~> 0.46"
+  spec.add_development_dependency "rake", "~> 11.3"
+  spec.add_development_dependency "rspec", "~> 3.5"
+  spec.add_development_dependency "simplecov", "~> 0.12"
+  spec.add_development_dependency "yard", "~> 0.9"
 
-  spec.add_dependency "collapsium", "~> 0.2"
+  spec.add_dependency "collapsium", "~> 0.8"
   spec.add_dependency "rgl", "~> 0.5"
-  spec.add_dependency "octokit", "~> 4.3"
 end
 # rubocop:enable Style/SpaceAroundOperators
 # rubocop:enable Style/UnneededPercentQ, Style/ExtraSpacing
