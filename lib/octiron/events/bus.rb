@@ -41,12 +41,9 @@ module Octiron::Events
     #     must be provided.
     # @return The class represented by the event_id, as a String name.
     def subscribe(event_id, handler_object = nil, &handler_proc)
-      handler = resolve_handler(handler_object, &handler_proc)
-      event_name = identify(event_id)
-
-      handlers_for(event_name, true) << handler
-
-      return event_name
+      return with_handlers(event_id, handler_object, handler_proc) do |hlist, h|
+        hlist << h
+      end
     end
     alias register subscribe
 
@@ -62,12 +59,9 @@ module Octiron::Events
     #     must be provided.
     # @return The class represented by the event_id, as a String name.
     def unsubscribe(event_id, handler_object = nil, &handler_proc)
-      handler = resolve_handler(handler_object, &handler_proc)
-      event_name = identify(event_id)
-
-      handlers_for(event_name, true).delete(handler)
-
-      return event_name
+      return with_handlers(event_id, handler_object, handler_proc) do |hlist, h|
+        hlist.delete(h)
+      end
     end
 
     ##
@@ -146,6 +140,15 @@ module Octiron::Events
       # In read access, want to either return an empty list, or the registered
       # handlers, but not ovewrite the registered handlers.
       return @handlers[name] || []
+    end
+
+    def with_handlers(event_id, handler_object, handler_proc)
+      handler = resolve_handler(handler_object, &handler_proc)
+      event_name = identify(event_id)
+
+      yield handlers_for(event_name, true), handler
+
+      return event_name
     end
 
     def resolve_handler(handler_object = nil, &handler_proc)
