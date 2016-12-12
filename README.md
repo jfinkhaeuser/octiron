@@ -27,6 +27,8 @@ class MyEvent
   # ...
 end
 
+include Octiron::World
+
 on_event(MyEvent) do |event|
   # event.is_a?(MyEvent) == true
   # do something with the event
