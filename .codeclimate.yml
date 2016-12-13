@@ -6,7 +6,6 @@ engines:
     enabled: true
     exclude_fingerprints:
       - 8d15a3402e79d161b5ae30535883e4e4
-      engines:
     config:
       languages:
       - ruby
