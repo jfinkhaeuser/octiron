@@ -68,9 +68,48 @@ module Octiron::World
   end
 
   ##
+  # Delegator for the autotransmogiry(FROM).to TO syntax
+  # @api private
+  class AutoTransmogrifyDelegator < TransmogrifierRegistrator
+    def initialize(from, raise_on_nil)
+      @from = from
+      @raise_on_nil = raise_on_nil
+    end
+
+    def to(to, transmogrifier_object = nil, &transmogrifier_proc)
+      # First register the transmogrifier
+      super
+
+      # Then create an event handler that chains the transmogrify step with a
+      # publish step.
+      ::Octiron::World.event_bus.subscribe(@from) do |event|
+        # By default, we don't want to raise errors if the transmogrifier
+        # returns nil. Still, raising should be activated optionally.
+        begin
+          new_ev = ::Octiron::World.transmogrifier_registry.transmogrify(event, to)
+          ::Octiron::World.event_bus.publish(new_ev)
+        rescue RuntimeError
+          if @raise_on_nil
+            raise
+          end
+        end
+      end
+    end
+  end
+
+  ##
   # Register a transmogrifier with the singleton transmogrifier registry
   def on_transmogrify(from)
     return TransmogrifierRegistrator.new(from)
+  end
+
+  ##
+  # Automatically transmogrify one event type to another, and publish the result.
+  # By default, a transmogrifier that returns a nil object simply does not
+  # publish a result.
+  def autotransmogrify(from, options = {})
+    raise_on_nil = options[:raise_on_nil] || false
+    return AutoTransmogrifyDelegator.new(from, raise_on_nil)
   end
 
   ##

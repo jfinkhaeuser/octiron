@@ -42,6 +42,12 @@ module Octiron::Transmogrifiers
     #     Transmogrifier classes.
     def initialize(default_namespace = ::Octiron::Transmogrifiers)
       @default_namespace = default_namespace.to_s
+      clear
+    end
+
+    ##
+    # Clears the registry of all transmogrifiers
+    def clear
       @graph = RGL::DirectedAdjacencyGraph.new
       @visitor = RGL::DijkstraVisitor.new(@graph)
       @map_data = {}

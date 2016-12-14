@@ -11,6 +11,9 @@ describe Octiron::World do
   before :each do
     @tester = Class.new
     @tester.extend(Octiron::World)
+
+    Octiron::World.transmogrifier_registry.clear
+    Octiron::World.event_bus.clear
   end
 
   describe "singletons" do
@@ -53,6 +56,43 @@ describe Octiron::World do
 
       result = @tester.transmogrify(Test1.new).to Test2
       expect(result.class).to eql Test2
+    end
+  end
+
+  describe "autotransmogrification" do
+    it "autotransmogrifies events" do
+      @tester.autotransmogrify(Test1).to Test2 do |_|
+        next Test2.new
+      end
+
+      invoked = 0
+      @tester.on_event(Test2) do |_|
+        invoked += 1
+      end
+
+      @tester.publish(Test1.new)
+      expect(invoked).to eql 1
+    end
+
+    it "ignores nil transmogrification results by default" do
+      @tester.autotransmogrify(Test1).to Test2 do |_|
+        # Nothing happening here
+      end
+
+      invoked = 0
+      @tester.on_event(Test2) do |_|
+        invoked += 1
+      end
+
+      @tester.publish(Test1.new)
+      expect(invoked).to eql 0
+    end
+
+    it "can raise on nil transmogrification results" do
+      @tester.autotransmogrify(Test1, raise_on_nil: true).to Test2 do |_|
+        # Nothing happening here
+      end
+      expect { @tester.publish(Test1.new) }.to raise_error(RuntimeError)
     end
   end
 end

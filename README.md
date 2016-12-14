@@ -52,7 +52,7 @@ end
 ```
 
 As long as the transmogrifier returns an object of the `AnotherEvent` type,
-all is well.
+all is well. Otherwise, an exception is raised.
 
 Putting this together with the hitherto unmentioned `#publish` method, you can
 easily build processing pipelines.
@@ -77,6 +77,50 @@ publish MyEvent.new
 ## Advanced Usage
 
 There are some more advanced topics that might be useful to understand.
+
+### Automatic Transmogrification
+
+When you write a lot of transmogrifiers, chances are your event handlers all
+look roughly the same:
+
+```ruby
+on_event(SourceEvent) do |event|
+  begin
+    new_event = transmogrify(event).to AnotherEvent
+    publish(new_event)
+  rescue RuntimeError
+  end
+end
+```
+
+This event handler pattern *tries* to transmogrify the source event to another
+type, and on success will publish the result. On failure, it just wants to
+swallow the event.
+
+This pattern is supported with the `#autotransmogrify` function:
+
+```ruby
+autotransmogrify(SourceEvent) do |event|
+  if not some_condition
+    next
+  end
+  AnotherEvent.new
+end
+```
+
+Your transmogrifier is installed as previously, and additionally an event handler
+is registered that follows the pattern above. If the transmogrifier returns
+no new event, that is silently accepted.
+
+You can use `#autotransmogrify` and still raise errors, of course:
+
+```ruby
+autotransmogrify(SourceEvent, raise_on_nil: true) do |_|
+  # do nothing
+end
+
+publish(SourceEvent.new) # will raise RuntimeError
+```
 
 ### Singletons vs. API
 

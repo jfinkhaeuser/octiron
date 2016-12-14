@@ -26,6 +26,12 @@ module Octiron::Events
     #     Event classes.
     def initialize(default_namespace = ::Octiron::Events)
       @default_namespace = default_namespace.to_s
+      clear
+    end
+
+    ##
+    # Clears all event handlers
+    def clear
       @handlers = {}
     end
 
