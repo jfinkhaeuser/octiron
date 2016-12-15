@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    octiron (0.2.0)
+    octiron (0.3.0)
       collapsium (~> 0.8)
       rgl (~> 0.5)
 
