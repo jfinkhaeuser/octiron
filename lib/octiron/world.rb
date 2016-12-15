@@ -120,8 +120,11 @@ module Octiron::World
 
   ##
   # Subscribe an event handler to an event with the singleton event bus
-  def on_event(event_id, handler_object = nil, &handler_proc)
-    ::Octiron::World.event_bus.subscribe(event_id, handler_object, &handler_proc)
+  def on_event(event_id, handler_object = nil,
+               handler_class = ::Octiron::Events::Bus::DEFAULT_CLASS,
+               &handler_proc)
+    ::Octiron::World.event_bus.subscribe(event_id, handler_object,
+                                         handler_class, &handler_proc)
   end
 
   ##
