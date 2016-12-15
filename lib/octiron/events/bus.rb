@@ -45,6 +45,9 @@ module Octiron::Events
     # @param handler_object (Object) Handler object that must implement a
     #     `#call` method accepting an instance of the event class provided in
     #     the first parameter. If nil, a block needs to be provided.
+    # @param handler_class (Object) An object describing the handler class; the
+    #     default is DEFAULT_CLASS. Handlers are executed sorted by handler class,
+    #     so the class provided here must be sortable.
     # @param handler_proc (Proc) Handler block that accepts an instance of the
     #     event class provided in the first parameter. If nil, a handler object
     #     must be provided.
@@ -65,6 +68,9 @@ module Octiron::Events
     # @param handler_object (Object) Handler object that must implement a
     #     `#call` method accepting an instance of the event class provided in
     #     the first parameter. If nil, a block needs to be provided.
+    # @param handler_class (Object) An object describing the handler class; the
+    #     default is DEFAULT_CLASS. Handlers are executed sorted by handler class,
+    #     so the class provided here must be sortable.
     # @param handler_proc (Proc) Handler block that accepts an instance of the
     #     event class provided in the first parameter. If nil, a handler object
     #     must be provided.
