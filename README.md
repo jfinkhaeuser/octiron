@@ -122,6 +122,49 @@ end
 publish(SourceEvent.new) # will raise RuntimeError
 ```
 
+### Handler Classes
+
+*The term "Handler Class" should not be confused with Ruby classes implementing
+handlers. Instead, a class is a grouping "type".*
+
+There may be situations where you want your handlers to be executed in a
+particular order. That is especially the case when one handler relies on a
+different handler having been executed earlier. For those instances, you can
+sort your handlers into classes as you subscribe them:
+
+```ruby
+on_event(MyEvent, nil, SOME_CLASS) do |event|
+  # ...
+end
+
+on_event(MyEvent, nil, ANOTHER_CLASS) do |event|
+  # ...
+end
+```
+
+In the above example, the two handlers are subscribed with the `SOME_CLASS` and
+`ANOTHER_CLASS` constants as handler classes respectively. These parameters must
+be sortable values: if `ANOTHER_CLASS`'s value is sorted before `SOME_CLASS`,
+then the second handler is executed before the first, e.g. in this instance:
+
+```ruby
+ANOTHER_CLASS = 0
+SOME_CLASS = 1
+```
+
+Note that we're passing a `nil` object as the second parameter every time. This
+is because we're subscribing a block handler. For an object handler, the code
+would have to be the following:
+
+```ruby
+on_event(MyEvent, second_handler, SOME_CLASS)
+on_event(MyEvent, first_handler, ANOTHER_CLASS)
+```
+
+Since handlers don't create new events, but pass the event from one handler to
+another, ordering handlers in classes allows you to modify an event before it
+reaches another handler.
+
 ### Singletons vs. API
 
 The octiron gem exposes a number of simple wrapper functions we've used so far
