@@ -295,7 +295,7 @@ describe Octiron::Events::Bus do
       expect(handler2.invoked).to eql 1
     end
 
-    it "unsubscripes proc handlers  properly" do
+    it "unsubscripes proc handlers properly" do
       event = TestEvent.new
       invoked1 = 0
       invoked2 = 0
@@ -317,6 +317,32 @@ describe Octiron::Events::Bus do
 
       expect(invoked1).to eql 2
       expect(invoked2).to eql 1
+    end
+  end
+
+  context "event handler classes" do
+    before :each do
+      @bus = ::Octiron::Events::Bus.new(::Octiron::Events)
+    end
+
+    it "executes handlers in order of handler classes" do
+      invoked = []
+      @bus.subscribe(TestEvent, nil, 1) do |_|
+        invoked << 1
+      end
+      @bus.subscribe(TestEvent, nil, 2) do |_|
+        invoked << 2
+      end
+      @bus.subscribe(TestEvent, nil, 0) do |_|
+        invoked << 0
+      end
+
+      @bus.publish(TestEvent.new)
+
+      # Since we used a simple numeric class for each handler, we expect the
+      # handlers to be executed in numeric sort order - independent of the order
+      # they were subscribed.
+      expect(invoked).to eql [0, 1, 2]
     end
   end
 end
