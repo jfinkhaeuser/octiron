@@ -89,7 +89,7 @@ describe Octiron::World do
     end
 
     it "can raise on nil transmogrification results" do
-      @tester.autotransmogrify(Test1, raise_on_nil: true).to Test2 do |_|
+      @tester.autotransmogrify(Test1, verify_results: true).to Test2 do |_|
         # Nothing happening here
       end
       expect { @tester.publish(Test1.new) }.to raise_error(RuntimeError)
