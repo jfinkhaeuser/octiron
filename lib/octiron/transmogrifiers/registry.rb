@@ -128,7 +128,10 @@ module Octiron::Transmogrifiers
 
     ##
     # Transmogrify an object of one class into another class.
-    def transmogrify(from, to)
+    # If `verify_results` is true, the transmogrification result is checked
+    # to match the target class or hash, and an error is raised if there is no
+    # match.
+    def transmogrify(from, to, verify_results = true)
       # Get lookup keys
       from_name = from.class.to_s
       if from.is_a?(Hash)
@@ -158,15 +161,21 @@ module Octiron::Transmogrifiers
         result = @transmogrifiers[key].call(input)
 
         # Verify result
-        if step_to.is_a?(Hash)
-          result.extend(::Collapsium::PrototypeMatch)
-          if not result.prototype_match(step_to)
-            raise "Transmogrifier returned Hash that did not match prototype "\
-                  "#{step_to}, aborting!"
+        if verify_results
+          if result.nil?
+            raise "Transmogrifier returned nil result!"
           end
-        elsif result.class.to_s != step_to
-          raise "Transmogrifier returned result of invalid class "\
-              "#{result.class}, aborting!"
+
+          if step_to.is_a?(Hash)
+            result.extend(::Collapsium::PrototypeMatch)
+            if not result.prototype_match(step_to)
+              raise "Transmogrifier returned Hash that did not match prototype "\
+                    "#{step_to}, aborting!"
+            end
+          elsif result.class.to_s != step_to
+            raise "Transmogrifier returned result of invalid class "\
+                "#{result.class}, aborting!"
+          end
         end
 
         # Result is input for the next transmogrifier in the chain
