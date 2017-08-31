@@ -3,10 +3,10 @@
 # octiron
 # https://github.com/jfinkhaeuser/octiron
 #
-# Copyright (c) 2016 Jens Finkhaeuser and other octiron contributors.
+# Copyright (c) 2016-2017 Jens Finkhaeuser and other octiron contributors.
 # All rights reserved.
 #
 module Octiron
   # The current release version
-  VERSION = "0.4.0".freeze
+  VERSION = "0.5.0".freeze
 end
