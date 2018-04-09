@@ -3,7 +3,7 @@
 # octiron
 # https://github.com/jfinkhaeuser/octiron
 #
-# Copyright (c) 2016-2017 Jens Finkhaeuser and other octiron contributors.
+# Copyright (c) 2016-2018 Jens Finkhaeuser and other octiron contributors.
 # All rights reserved.
 #
 
